@@ -11083,6 +11083,145 @@ var _evancz$elm_graphics$Collage$ngon = F2(
 				f,
 				_elm_lang$core$Native_List.range(0, m - 1)));
 	});
+var _remyyounes$elm_snake$Utils_Math$wrap = F2(
+	function (v, range) {
+		var max = range - 1;
+		var min = 0;
+		return (_elm_lang$core$Native_Utils.cmp(v, min) < 0) ? max : ((_elm_lang$core$Native_Utils.cmp(v, max) > 0) ? min : v);
+	});
+var _remyyounes$elm_snake$Utils_Math$lerp = F3(
+	function (min, max, val) {
+		return min + ((max - min) * val);
+	});
+var _remyyounes$elm_snake$Tile$tiles = 20;
+var _remyyounes$elm_snake$Tile$tile = 20;
+var _remyyounes$elm_snake$Tile$world = {width: _remyyounes$elm_snake$Tile$tiles * _remyyounes$elm_snake$Tile$tile, height: _remyyounes$elm_snake$Tile$tiles * _remyyounes$elm_snake$Tile$tile};
+var _remyyounes$elm_snake$Tile$view = F2(
+	function (color, position) {
+		return A2(
+			_evancz$elm_graphics$Collage$move,
+			{ctor: '_Tuple2', _0: (0 - _remyyounes$elm_snake$Tile$world.width) / 2, _1: (0 - _remyyounes$elm_snake$Tile$world.height) / 2},
+			A2(
+				_evancz$elm_graphics$Collage$move,
+				{ctor: '_Tuple2', _0: _remyyounes$elm_snake$Tile$tile / 2, _1: _remyyounes$elm_snake$Tile$tile / 2},
+				A2(
+					_evancz$elm_graphics$Collage$move,
+					{ctor: '_Tuple2', _0: position.x * _remyyounes$elm_snake$Tile$tile, _1: position.y * _remyyounes$elm_snake$Tile$tile},
+					A2(
+						_evancz$elm_graphics$Collage$filled,
+						color,
+						_evancz$elm_graphics$Collage$square(_remyyounes$elm_snake$Tile$tile)))));
+	});
+var _remyyounes$elm_snake$Position$vecEql = F2(
+	function (vecA, vecB) {
+		return _elm_lang$core$Native_Utils.eq(vecA.x, vecB.x) && _elm_lang$core$Native_Utils.eq(vecA.y, vecB.y);
+	});
+var _remyyounes$elm_snake$Position$detectCollision = F2(
+	function (head, tail) {
+		var collided = A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (tile, m) {
+					return m || A2(_remyyounes$elm_snake$Position$vecEql, head, tile);
+				}),
+			false,
+			tail);
+		return collided ? true : _remyyounes$elm_snake$Position$detectCollisions(tail);
+	});
+var _remyyounes$elm_snake$Position$detectCollisions = function (body) {
+	var _p0 = _elm_lang$core$List$tail(body);
+	if (_p0.ctor === 'Nothing') {
+		return false;
+	} else {
+		var _p1 = _elm_lang$core$List$head(body);
+		if (_p1.ctor === 'Nothing') {
+			return false;
+		} else {
+			return A2(_remyyounes$elm_snake$Position$detectCollision, _p1._0, _p0._0);
+		}
+	}
+};
+var _remyyounes$elm_snake$Position$Vector = F2(
+	function (a, b) {
+		return {x: a, y: b};
+	});
+var _remyyounes$elm_snake$Position$wrapPosition = F2(
+	function (world, position) {
+		return A2(
+			_remyyounes$elm_snake$Position$Vector,
+			A2(_remyyounes$elm_snake$Utils_Math$wrap, position.x, _remyyounes$elm_snake$Tile$tiles),
+			A2(_remyyounes$elm_snake$Utils_Math$wrap, position.y, _remyyounes$elm_snake$Tile$tiles));
+	});
+var _remyyounes$elm_snake$Position$Dimensions = F2(
+	function (a, b) {
+		return {width: a, height: b};
+	});
+var _remyyounes$elm_snake$Utils_Color$greyedColor = F2(
+	function (color, val) {
+		var grey = (val / 3) | 0;
+		var _p0 = color;
+		switch (_p0.ctor) {
+			case 'Red':
+				return A3(_elm_lang$core$Color$rgb, val, grey, grey);
+			case 'Green':
+				return A3(_elm_lang$core$Color$rgb, grey, val, grey);
+			default:
+				return A3(_elm_lang$core$Color$rgb, grey, grey, val);
+		}
+	});
+var _remyyounes$elm_snake$Utils_Color$lerpFromPosition = F4(
+	function (min, max, idx, length) {
+		return _elm_lang$core$Basics$round(
+			A3(
+				_remyyounes$elm_snake$Utils_Math$lerp,
+				min,
+				max,
+				_elm_lang$core$Basics$toFloat(idx) / _elm_lang$core$Basics$toFloat(length)));
+	});
+var _remyyounes$elm_snake$Utils_Color$Blue = {ctor: 'Blue'};
+var _remyyounes$elm_snake$Utils_Color$Green = {ctor: 'Green'};
+var _remyyounes$elm_snake$Utils_Color$ringColor = F2(
+	function (idx, length) {
+		return A2(
+			_remyyounes$elm_snake$Utils_Color$greyedColor,
+			_remyyounes$elm_snake$Utils_Color$Green,
+			A4(_remyyounes$elm_snake$Utils_Color$lerpFromPosition, 100, 200, idx, length));
+	});
+var _remyyounes$elm_snake$Utils_Color$Red = {ctor: 'Red'};
+var _remyyounes$elm_snake$Utils_Color$fruitColor = F2(
+	function (bonus, maxBonus) {
+		return A2(
+			_remyyounes$elm_snake$Utils_Color$greyedColor,
+			_remyyounes$elm_snake$Utils_Color$Red,
+			A4(_remyyounes$elm_snake$Utils_Color$lerpFromPosition, 100, 200, bonus, maxBonus));
+	});
+var _remyyounes$elm_snake$Fruit$view = function (fruit) {
+	return A2(
+		_remyyounes$elm_snake$Tile$view,
+		A2(_remyyounes$elm_snake$Utils_Color$fruitColor, fruit.bonus, fruit.maxBonus),
+		fruit.pos);
+};
+var _remyyounes$elm_snake$Fruit$update = function (fruit) {
+	return _elm_lang$core$Native_Utils.update(
+		fruit,
+		{bonus: fruit.bonus - 1});
+};
+var _remyyounes$elm_snake$Fruit$maxBonus = 100;
+var _remyyounes$elm_snake$Fruit$init = F2(
+	function (x, y) {
+		return {
+			pos: A2(
+				_remyyounes$elm_snake$Position$Vector,
+				_elm_lang$core$Basics$toFloat(x),
+				_elm_lang$core$Basics$toFloat(y)),
+			bonus: _remyyounes$elm_snake$Fruit$maxBonus,
+			maxBonus: _remyyounes$elm_snake$Fruit$maxBonus
+		};
+	});
+var _remyyounes$elm_snake$Fruit$Fruit = F3(
+	function (a, b, c) {
+		return {pos: a, bonus: b, maxBonus: c};
+	});
 var _remyyounes$elm_snake$SnakeMsg$NewFruit = function (a) {
 	return {ctor: 'NewFruit', _0: a};
 };
@@ -11142,7 +11281,63 @@ var _remyyounes$elm_snake$SnakeKeyboard$keyboardProcessor = function (keyCode) {
 			return _remyyounes$elm_snake$SnakeMsg$NoOp;
 	}
 };
-var _remyyounes$elm_snake$SnakeLogic$tailToHead = F2(
+var _remyyounes$elm_snake$Snake$view = function (snake) {
+	var length = _elm_lang$core$List$length(snake.body);
+	return A2(
+		_elm_lang$core$List$indexedMap,
+		F2(
+			function (idx, ring) {
+				return A2(
+					_remyyounes$elm_snake$Tile$view,
+					A2(_remyyounes$elm_snake$Utils_Color$ringColor, length - idx, length),
+					ring);
+			}),
+		snake.body);
+};
+var _remyyounes$elm_snake$Snake$updatePosition = F2(
+	function (direction, pos) {
+		var _p0 = direction;
+		switch (_p0) {
+			case 'Right':
+				return A2(_remyyounes$elm_snake$Position$Vector, pos.x + 1, pos.y);
+			case 'Left':
+				return A2(_remyyounes$elm_snake$Position$Vector, pos.x - 1, pos.y);
+			case 'Up':
+				return A2(_remyyounes$elm_snake$Position$Vector, pos.x, pos.y + 1);
+			case 'Down':
+				return A2(_remyyounes$elm_snake$Position$Vector, pos.x, pos.y - 1);
+			default:
+				return pos;
+		}
+	});
+var _remyyounes$elm_snake$Snake$growSnake = function (snake) {
+	var length = _elm_lang$core$List$length(snake.body) - 1;
+	return _elm_lang$core$Native_Utils.update(
+		snake,
+		{
+			body: A2(
+				_elm_lang$core$List$append,
+				snake.body,
+				A2(_elm_lang$core$List$drop, length, snake.body))
+		});
+};
+var _remyyounes$elm_snake$Snake$wrapSnakePosition = F2(
+	function (bounds, snake) {
+		return _elm_lang$core$Native_Utils.update(
+			snake,
+			{
+				pos: A2(_remyyounes$elm_snake$Position$wrapPosition, _remyyounes$elm_snake$Tile$world, snake.pos)
+			});
+	});
+var _remyyounes$elm_snake$Snake$updateSnakePosition = F2(
+	function (direction, snake) {
+		return _elm_lang$core$Native_Utils.update(
+			snake,
+			{
+				pos: A2(_remyyounes$elm_snake$Snake$updatePosition, direction, snake.pos)
+			});
+	});
+var _remyyounes$elm_snake$Snake$tailToHead = F2(
 	function (leader, body) {
 		return A2(
 			_elm_lang$core$List$append,
@@ -11153,36 +11348,45 @@ var _remyyounes$elm_snake$SnakeLogic$tailToHead = F2(
 				_elm_lang$core$List$length(body) - 1,
 				body));
 	});
-var _remyyounes$elm_snake$SnakeLogic$wrap = F2(
-	function (v, range) {
-		var max = range - 1;
-		var min = 0;
-		return (_elm_lang$core$Native_Utils.cmp(v, min) < 0) ? max : ((_elm_lang$core$Native_Utils.cmp(v, max) > 0) ? min : v);
+var _remyyounes$elm_snake$Snake$updateSnakeBody = function (snake) {
+	return _elm_lang$core$Native_Utils.update(
+		snake,
+		{
+			body: A2(_remyyounes$elm_snake$Snake$tailToHead, snake.pos, snake.body)
+		});
+};
+var _remyyounes$elm_snake$Snake$update = F2(
+	function (direction, snake) {
+		return _remyyounes$elm_snake$Snake$updateSnakeBody(
+			A2(
+				_remyyounes$elm_snake$Snake$wrapSnakePosition,
+				_remyyounes$elm_snake$Tile$world,
+				A2(_remyyounes$elm_snake$Snake$updateSnakePosition, direction, snake)));
 	});
-var _remyyounes$elm_snake$SnakeLogic$lerp = F3(
-	function (min, max, val) {
-		return min + ((max - min) * val);
+var _remyyounes$elm_snake$Snake$Snake = F2(
+	function (a, b) {
+		return {pos: a, body: b};
 	});
-var _remyyounes$elm_snake$SnakeGame$ringColor = F3(
-	function (color, idx, length) {
-		var rank = _elm_lang$core$Basics$toFloat(idx) / _elm_lang$core$Basics$toFloat(length);
-		var val = _elm_lang$core$Basics$round(
-			A3(_remyyounes$elm_snake$SnakeLogic$lerp, 100, 200, rank));
-		var grey = (val / 3) | 0;
-		var _p0 = color;
-		switch (_p0.ctor) {
-			case 'Red':
-				return A3(_elm_lang$core$Color$rgb, val, grey, grey);
-			case 'Green':
-				return A3(_elm_lang$core$Color$rgb, grey, val, grey);
-			default:
-				return A3(_elm_lang$core$Color$rgb, grey, grey, val);
-		}
-	});
+var _remyyounes$elm_snake$SnakeGame$viewGame = function (game) {
+	return A2(
+		_evancz$elm_graphics$Element$color,
+		_elm_lang$core$Color$grey,
+		A3(
+			_evancz$elm_graphics$Collage$collage,
+			_remyyounes$elm_snake$Tile$world.width,
+			_remyyounes$elm_snake$Tile$world.height,
+			A2(
+				_elm_lang$core$List$append,
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_remyyounes$elm_snake$Fruit$view(game.fruit)
+					]),
+				_remyyounes$elm_snake$Snake$view(game.snake))));
+};
 var _remyyounes$elm_snake$SnakeGame$restrictDirection = F2(
 	function (previous, next) {
-		var _p1 = next;
-		switch (_p1) {
+		var _p0 = next;
+		switch (_p0) {
 			case 'Right':
 				return _elm_lang$core$Native_Utils.eq(previous, 'Left') ? previous : next;
 			case 'Left':
@@ -11195,123 +11399,11 @@ var _remyyounes$elm_snake$SnakeGame$restrictDirection = F2(
 				return next;
 		}
 	});
-var _remyyounes$elm_snake$SnakeGame$updateSnakeBody = function (snake) {
-	return _elm_lang$core$Native_Utils.update(
-		snake,
-		{
-			body: A2(_remyyounes$elm_snake$SnakeLogic$tailToHead, snake.pos, snake.body)
-		});
-};
-var _remyyounes$elm_snake$SnakeGame$growSnake = function (snake) {
-	var length = _elm_lang$core$List$length(snake.body) - 1;
-	return _elm_lang$core$Native_Utils.update(
-		snake,
-		{
-			body: A2(
-				_elm_lang$core$List$append,
-				snake.body,
-				A2(_elm_lang$core$List$drop, length, snake.body))
-		});
-};
-var _remyyounes$elm_snake$SnakeGame$updateFruit = function (fruit) {
-	return _elm_lang$core$Native_Utils.update(
-		fruit,
-		{bonus: fruit.bonus - 1});
-};
-var _remyyounes$elm_snake$SnakeGame$vecEql = F2(
-	function (vecA, vecB) {
-		return _elm_lang$core$Native_Utils.eq(vecA.x, vecB.x) && _elm_lang$core$Native_Utils.eq(vecA.y, vecB.y);
-	});
-var _remyyounes$elm_snake$SnakeGame$detectCollision = F2(
-	function (head, tail) {
-		var collided = A3(
-			_elm_lang$core$List$foldl,
-			F2(
-				function (tile, m) {
-					return m || A2(_remyyounes$elm_snake$SnakeGame$vecEql, head, tile);
-				}),
-			false,
-			tail);
-		return collided ? true : _remyyounes$elm_snake$SnakeGame$detectCollisions(tail);
-	});
-var _remyyounes$elm_snake$SnakeGame$detectCollisions = function (body) {
-	var _p2 = _elm_lang$core$List$tail(body);
-	if (_p2.ctor === 'Nothing') {
-		return false;
-	} else {
-		var _p3 = _elm_lang$core$List$head(body);
-		if (_p3.ctor === 'Nothing') {
-			return false;
-		} else {
-			return A2(_remyyounes$elm_snake$SnakeGame$detectCollision, _p3._0, _p2._0);
-		}
-	}
-};
 var _remyyounes$elm_snake$SnakeGame$initSnakeLength = 3;
-var _remyyounes$elm_snake$SnakeGame$maxBonus = 100;
-var _remyyounes$elm_snake$SnakeGame$fruitColor = F2(
-	function (color, fruit) {
-		var rank = _elm_lang$core$Basics$toFloat(fruit.bonus) / _elm_lang$core$Basics$toFloat(_remyyounes$elm_snake$SnakeGame$maxBonus);
-		var val = _elm_lang$core$Basics$round(
-			A3(_remyyounes$elm_snake$SnakeLogic$lerp, 0, 200, rank));
-		var grey = (val / 3) | 0;
-		var _p4 = color;
-		switch (_p4.ctor) {
-			case 'Red':
-				return A3(_elm_lang$core$Color$rgb, val, grey, grey);
-			case 'Green':
-				return A3(_elm_lang$core$Color$rgb, grey, val, grey);
-			default:
-				return A3(_elm_lang$core$Color$rgb, grey, grey, val);
-		}
-	});
-var _remyyounes$elm_snake$SnakeGame$tiles = 20;
-var _remyyounes$elm_snake$SnakeGame$tile = 20;
-var _remyyounes$elm_snake$SnakeGame$world = {width: _remyyounes$elm_snake$SnakeGame$tiles * _remyyounes$elm_snake$SnakeGame$tile, height: _remyyounes$elm_snake$SnakeGame$tiles * _remyyounes$elm_snake$SnakeGame$tile};
-var _remyyounes$elm_snake$SnakeGame$renderTile = F2(
-	function (color, position) {
-		return A2(
-			_evancz$elm_graphics$Collage$move,
-			{ctor: '_Tuple2', _0: (0 - _remyyounes$elm_snake$SnakeGame$world.width) / 2, _1: (0 - _remyyounes$elm_snake$SnakeGame$world.height) / 2},
-			A2(
-				_evancz$elm_graphics$Collage$move,
-				{ctor: '_Tuple2', _0: _remyyounes$elm_snake$SnakeGame$tile / 2, _1: _remyyounes$elm_snake$SnakeGame$tile / 2},
-				A2(
-					_evancz$elm_graphics$Collage$move,
-					{ctor: '_Tuple2', _0: position.x * _remyyounes$elm_snake$SnakeGame$tile, _1: position.y * _remyyounes$elm_snake$SnakeGame$tile},
-					A2(
-						_evancz$elm_graphics$Collage$filled,
-						color,
-						_evancz$elm_graphics$Collage$square(_remyyounes$elm_snake$SnakeGame$tile)))));
-	});
-var _remyyounes$elm_snake$SnakeGame$renderRing = F2(
-	function (color, ring) {
-		return A2(_remyyounes$elm_snake$SnakeGame$renderTile, color, ring);
-	});
-var _remyyounes$elm_snake$SnakeGame$fps = 15;
-var _remyyounes$elm_snake$SnakeGame$timePerFrame = 1000 / _remyyounes$elm_snake$SnakeGame$fps;
-var _remyyounes$elm_snake$SnakeGame$Vector = F2(
-	function (a, b) {
-		return {x: a, y: b};
-	});
-var _remyyounes$elm_snake$SnakeGame$initVector = A2(
-	_remyyounes$elm_snake$SnakeGame$Vector,
-	_elm_lang$core$Basics$toFloat(_remyyounes$elm_snake$SnakeGame$tiles) / 2,
-	_elm_lang$core$Basics$toFloat(_remyyounes$elm_snake$SnakeGame$tiles) / 2);
-var _remyyounes$elm_snake$SnakeGame$newFruit = F2(
-	function (x, y) {
-		return {
-			pos: A2(
-				_remyyounes$elm_snake$SnakeGame$Vector,
-				_elm_lang$core$Basics$toFloat(x),
-				_elm_lang$core$Basics$toFloat(y)),
-			bonus: _remyyounes$elm_snake$SnakeGame$maxBonus
-		};
-	});
 var _remyyounes$elm_snake$SnakeGame$initPos = F2(
 	function (length, pos) {
 		return A2(
-			_remyyounes$elm_snake$SnakeGame$Vector,
+			_remyyounes$elm_snake$Position$Vector,
 			_elm_lang$core$Basics$toFloat(length - pos),
 			0.0);
 	});
@@ -11325,138 +11417,44 @@ var _remyyounes$elm_snake$SnakeGame$initSnake = function () {
 			_elm_lang$core$Native_List.range(1, _remyyounes$elm_snake$SnakeGame$initSnakeLength))
 	};
 }();
-var _remyyounes$elm_snake$SnakeGame$wrapPosition = F2(
-	function (world, position) {
-		return A2(
-			_remyyounes$elm_snake$SnakeGame$Vector,
-			A2(_remyyounes$elm_snake$SnakeLogic$wrap, position.x, _remyyounes$elm_snake$SnakeGame$tiles),
-			A2(_remyyounes$elm_snake$SnakeLogic$wrap, position.y, _remyyounes$elm_snake$SnakeGame$tiles));
-	});
-var _remyyounes$elm_snake$SnakeGame$wrapSnakePosition = F2(
-	function (bounds, snake) {
-		return _elm_lang$core$Native_Utils.update(
-			snake,
-			{
-				pos: A2(_remyyounes$elm_snake$SnakeGame$wrapPosition, _remyyounes$elm_snake$SnakeGame$world, snake.pos)
-			});
-	});
-var _remyyounes$elm_snake$SnakeGame$updatePosition = F2(
-	function (direction, pos) {
-		var _p5 = direction;
-		switch (_p5) {
-			case 'Right':
-				return A2(_remyyounes$elm_snake$SnakeGame$Vector, pos.x + 1, pos.y);
-			case 'Left':
-				return A2(_remyyounes$elm_snake$SnakeGame$Vector, pos.x - 1, pos.y);
-			case 'Up':
-				return A2(_remyyounes$elm_snake$SnakeGame$Vector, pos.x, pos.y + 1);
-			case 'Down':
-				return A2(_remyyounes$elm_snake$SnakeGame$Vector, pos.x, pos.y - 1);
-			default:
-				return pos;
-		}
-	});
-var _remyyounes$elm_snake$SnakeGame$updateSnakePosition = F2(
-	function (direction, snake) {
-		return _elm_lang$core$Native_Utils.update(
-			snake,
-			{
-				pos: A2(_remyyounes$elm_snake$SnakeGame$updatePosition, direction, snake.pos)
-			});
-	});
-var _remyyounes$elm_snake$SnakeGame$updateSnake = F2(
-	function (direction, snake) {
-		return _remyyounes$elm_snake$SnakeGame$updateSnakeBody(
-			A2(
-				_remyyounes$elm_snake$SnakeGame$wrapSnakePosition,
-				_remyyounes$elm_snake$SnakeGame$world,
-				A2(_remyyounes$elm_snake$SnakeGame$updateSnakePosition, direction, snake)));
-	});
-var _remyyounes$elm_snake$SnakeGame$Dimensions = F2(
-	function (a, b) {
-		return {width: a, height: b};
-	});
-var _remyyounes$elm_snake$SnakeGame$Snake = F2(
-	function (a, b) {
-		return {pos: a, body: b};
-	});
-var _remyyounes$elm_snake$SnakeGame$Fruit = F2(
-	function (a, b) {
-		return {pos: a, bonus: b};
-	});
+var _remyyounes$elm_snake$SnakeGame$maxBonus = 100;
+var _remyyounes$elm_snake$SnakeGame$fps = 15;
+var _remyyounes$elm_snake$SnakeGame$timePerFrame = 1000 / _remyyounes$elm_snake$SnakeGame$fps;
 var _remyyounes$elm_snake$SnakeGame$Game = F7(
 	function (a, b, c, d, e, f, g) {
 		return {score: a, previousDirection: b, direction: c, lastFrameDelta: d, fruit: e, state: f, snake: g};
 	});
-var _remyyounes$elm_snake$SnakeGame$Blue = {ctor: 'Blue'};
-var _remyyounes$elm_snake$SnakeGame$Green = {ctor: 'Green'};
-var _remyyounes$elm_snake$SnakeGame$renderSnake = function (snake) {
-	var length = _elm_lang$core$List$length(snake.body);
-	return A2(
-		_elm_lang$core$List$indexedMap,
-		F2(
-			function (idx, ring) {
-				return A2(
-					_remyyounes$elm_snake$SnakeGame$renderRing,
-					A3(_remyyounes$elm_snake$SnakeGame$ringColor, _remyyounes$elm_snake$SnakeGame$Green, length - idx, length),
-					ring);
-			}),
-		snake.body);
-};
-var _remyyounes$elm_snake$SnakeGame$Red = {ctor: 'Red'};
-var _remyyounes$elm_snake$SnakeGame$renderFruit = function (fruit) {
-	return A2(
-		_remyyounes$elm_snake$SnakeGame$renderTile,
-		A2(_remyyounes$elm_snake$SnakeGame$fruitColor, _remyyounes$elm_snake$SnakeGame$Red, fruit),
-		fruit.pos);
-};
-var _remyyounes$elm_snake$SnakeGame$viewGame = function (game) {
-	return A2(
-		_evancz$elm_graphics$Element$color,
-		_elm_lang$core$Color$grey,
-		A3(
-			_evancz$elm_graphics$Collage$collage,
-			_remyyounes$elm_snake$SnakeGame$world.width,
-			_remyyounes$elm_snake$SnakeGame$world.height,
-			A2(
-				_elm_lang$core$List$append,
-				_remyyounes$elm_snake$SnakeGame$renderSnake(game.snake),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_remyyounes$elm_snake$SnakeGame$renderFruit(game.fruit)
-					]))));
-};
 var _remyyounes$elm_snake$SnakeGame$Playing = {ctor: 'Playing'};
 var _remyyounes$elm_snake$SnakeGame$initGame = {
 	score: 0,
 	previousDirection: 'Right',
 	direction: 'Right',
 	lastFrameDelta: 0,
-	fruit: A2(_remyyounes$elm_snake$SnakeGame$newFruit, 6, 0),
+	fruit: A2(_remyyounes$elm_snake$Fruit$init, 6, 0),
 	state: _remyyounes$elm_snake$SnakeGame$Playing,
 	snake: _remyyounes$elm_snake$SnakeGame$initSnake
 };
 var _remyyounes$elm_snake$SnakeGame$Over = {ctor: 'Over'};
 var _remyyounes$elm_snake$SnakeGame$stepGame = function (game) {
-	var _p6 = game;
-	var score = _p6.score;
-	var snake = _p6.snake;
-	var lastFrameDelta = _p6.lastFrameDelta;
-	var direction = _p6.direction;
-	var fruit = _p6.fruit;
-	var ateFruit = A2(_remyyounes$elm_snake$SnakeGame$vecEql, snake.pos, fruit.pos);
+	var _p1 = game;
+	var score = _p1.score;
+	var snake = _p1.snake;
+	var lastFrameDelta = _p1.lastFrameDelta;
+	var direction = _p1.direction;
+	var fruit = _p1.fruit;
+	var ateFruit = A2(_remyyounes$elm_snake$Position$vecEql, snake.pos, fruit.pos);
 	var cmds = ateFruit ? A2(
 		_elm_lang$core$Random$generate,
 		_remyyounes$elm_snake$SnakeMsg$NewFruit,
 		A2(
 			_elm_lang$core$Random$pair,
-			A2(_elm_lang$core$Random$int, 0, _remyyounes$elm_snake$SnakeGame$tiles - 1),
-			A2(_elm_lang$core$Random$int, 0, _remyyounes$elm_snake$SnakeGame$tiles - 1))) : _elm_lang$core$Platform_Cmd$none;
-	var grownSnake = ateFruit ? _remyyounes$elm_snake$SnakeGame$growSnake(snake) : snake;
-	var updatedSnake = A2(_remyyounes$elm_snake$SnakeGame$updateSnake, direction, grownSnake);
-	var ateTail = _remyyounes$elm_snake$SnakeGame$detectCollisions(updatedSnake.body);
+			A2(_elm_lang$core$Random$int, 0, _remyyounes$elm_snake$Tile$tiles - 1),
+			A2(_elm_lang$core$Random$int, 0, _remyyounes$elm_snake$Tile$tiles - 1))) : _elm_lang$core$Platform_Cmd$none;
+	var grownSnake = ateFruit ? _remyyounes$elm_snake$Snake$growSnake(snake) : snake;
+	var updatedSnake = A2(_remyyounes$elm_snake$Snake$update, direction, grownSnake);
+	var ateTail = _remyyounes$elm_snake$Position$detectCollisions(updatedSnake.body);
 	var gameState = (ateTail || _elm_lang$core$Native_Utils.eq(game.state, _remyyounes$elm_snake$SnakeGame$Over)) ? _remyyounes$elm_snake$SnakeGame$Over : _remyyounes$elm_snake$SnakeGame$Playing;
-	var updatedFruit = _remyyounes$elm_snake$SnakeGame$updateFruit(fruit);
+	var updatedFruit = _remyyounes$elm_snake$Fruit$update(fruit);
 	return {
 		ctor: '_Tuple2',
 		_0: _elm_lang$core$Native_Utils.update(
@@ -11467,40 +11465,40 @@ var _remyyounes$elm_snake$SnakeGame$stepGame = function (game) {
 };
 var _remyyounes$elm_snake$SnakeGame$updateGame = F2(
 	function (msg, game) {
-		var _p7 = msg;
-		_v6_3:
+		var _p2 = msg;
+		_v1_3:
 		do {
-			switch (_p7.ctor) {
+			switch (_p2.ctor) {
 				case 'ChangeDirection':
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							game,
 							{
-								direction: A2(_remyyounes$elm_snake$SnakeGame$restrictDirection, game.previousDirection, _p7._0)
+								direction: A2(_remyyounes$elm_snake$SnakeGame$restrictDirection, game.previousDirection, _p2._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				case 'NewFruit':
-					if (_p7._0.ctor === '_Tuple2') {
+					if (_p2._0.ctor === '_Tuple2') {
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
 								game,
 								{
-									fruit: A2(_remyyounes$elm_snake$SnakeGame$newFruit, _p7._0._0, _p7._0._1)
+									fruit: A2(_remyyounes$elm_snake$Fruit$init, _p2._0._0, _p2._0._1)
 								}),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
 					} else {
-						break _v6_3;
+						break _v1_3;
 					}
 				case 'Tick':
-					var newDelta = game.lastFrameDelta + _p7._0;
+					var newDelta = game.lastFrameDelta + _p2._0;
 					var ticked = (_elm_lang$core$Native_Utils.cmp(newDelta, _remyyounes$elm_snake$SnakeGame$timePerFrame) > 0) && _elm_lang$core$Native_Utils.eq(game.state, _remyyounes$elm_snake$SnakeGame$Playing);
 					var newFrameDelta = function () {
-						var _p8 = ticked;
-						if (_p8 === true) {
+						var _p3 = ticked;
+						if (_p3 === true) {
 							return game.lastFrameDelta - _remyyounes$elm_snake$SnakeGame$timePerFrame;
 						} else {
 							return newDelta;
@@ -11511,7 +11509,7 @@ var _remyyounes$elm_snake$SnakeGame$updateGame = F2(
 						{lastFrameDelta: newFrameDelta});
 					return ticked ? _remyyounes$elm_snake$SnakeGame$stepGame(g) : {ctor: '_Tuple2', _0: g, _1: _elm_lang$core$Platform_Cmd$none};
 				default:
-					break _v6_3;
+					break _v1_3;
 			}
 		} while(false);
 		return {ctor: '_Tuple2', _0: game, _1: _elm_lang$core$Platform_Cmd$none};
