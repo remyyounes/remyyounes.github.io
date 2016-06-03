@@ -11218,9 +11218,21 @@ var _remyyounes$elm_snake$SnakeGame$updateFruit = function (fruit) {
 		fruit,
 		{bonus: fruit.bonus - 1});
 };
-var _remyyounes$elm_snake$SnakeGame$comp = F2(
+var _remyyounes$elm_snake$SnakeGame$vecEql = F2(
+	function (vecA, vecB) {
+		return _elm_lang$core$Native_Utils.eq(vecA.x, vecB.x) && _elm_lang$core$Native_Utils.eq(vecA.y, vecB.y);
+	});
+var _remyyounes$elm_snake$SnakeGame$detectCollision = F2(
 	function (head, tail) {
-		return _elm_lang$core$Native_Utils.eq(tail.x, head.x) && _elm_lang$core$Native_Utils.eq(tail.y, head.y);
+		var collided = A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (tile, m) {
+					return m || A2(_remyyounes$elm_snake$SnakeGame$vecEql, head, tile);
+				}),
+			false,
+			tail);
+		return collided ? true : _remyyounes$elm_snake$SnakeGame$detectCollisions(tail);
 	});
 var _remyyounes$elm_snake$SnakeGame$detectCollisions = function (body) {
 	var _p2 = _elm_lang$core$List$tail(body);
@@ -11235,22 +11247,6 @@ var _remyyounes$elm_snake$SnakeGame$detectCollisions = function (body) {
 		}
 	}
 };
-var _remyyounes$elm_snake$SnakeGame$detectCollision = F2(
-	function (head, tail) {
-		var collided = A3(
-			_elm_lang$core$List$foldl,
-			F2(
-				function (tile, m) {
-					return m || A2(_remyyounes$elm_snake$SnakeGame$comp, head, tile);
-				}),
-			false,
-			tail);
-		return collided ? true : _remyyounes$elm_snake$SnakeGame$detectCollisions(tail);
-	});
-var _remyyounes$elm_snake$SnakeGame$vecEql = F2(
-	function (vecA, vecB) {
-		return _elm_lang$core$Native_Utils.eq(vecA.x, vecB.x) && _elm_lang$core$Native_Utils.eq(vecA.y, vecB.y);
-	});
 var _remyyounes$elm_snake$SnakeGame$initSnakeLength = 3;
 var _remyyounes$elm_snake$SnakeGame$maxBonus = 100;
 var _remyyounes$elm_snake$SnakeGame$fruitColor = F2(
@@ -11292,7 +11288,7 @@ var _remyyounes$elm_snake$SnakeGame$renderRing = F2(
 	function (color, ring) {
 		return A2(_remyyounes$elm_snake$SnakeGame$renderTile, color, ring);
 	});
-var _remyyounes$elm_snake$SnakeGame$fps = 10;
+var _remyyounes$elm_snake$SnakeGame$fps = 15;
 var _remyyounes$elm_snake$SnakeGame$timePerFrame = 1000 / _remyyounes$elm_snake$SnakeGame$fps;
 var _remyyounes$elm_snake$SnakeGame$Vector = F2(
 	function (a, b) {
@@ -11441,30 +11437,58 @@ var _remyyounes$elm_snake$SnakeGame$initGame = {
 	snake: _remyyounes$elm_snake$SnakeGame$initSnake
 };
 var _remyyounes$elm_snake$SnakeGame$Over = {ctor: 'Over'};
+var _remyyounes$elm_snake$SnakeGame$stepGame = function (game) {
+	var _p6 = game;
+	var score = _p6.score;
+	var snake = _p6.snake;
+	var lastFrameDelta = _p6.lastFrameDelta;
+	var direction = _p6.direction;
+	var fruit = _p6.fruit;
+	var ateFruit = A2(_remyyounes$elm_snake$SnakeGame$vecEql, snake.pos, fruit.pos);
+	var cmds = ateFruit ? A2(
+		_elm_lang$core$Random$generate,
+		_remyyounes$elm_snake$SnakeMsg$NewFruit,
+		A2(
+			_elm_lang$core$Random$pair,
+			A2(_elm_lang$core$Random$int, 0, _remyyounes$elm_snake$SnakeGame$tiles - 1),
+			A2(_elm_lang$core$Random$int, 0, _remyyounes$elm_snake$SnakeGame$tiles - 1))) : _elm_lang$core$Platform_Cmd$none;
+	var grownSnake = ateFruit ? _remyyounes$elm_snake$SnakeGame$growSnake(snake) : snake;
+	var updatedSnake = A2(_remyyounes$elm_snake$SnakeGame$updateSnake, direction, grownSnake);
+	var ateTail = _remyyounes$elm_snake$SnakeGame$detectCollisions(updatedSnake.body);
+	var gameState = (ateTail || _elm_lang$core$Native_Utils.eq(game.state, _remyyounes$elm_snake$SnakeGame$Over)) ? _remyyounes$elm_snake$SnakeGame$Over : _remyyounes$elm_snake$SnakeGame$Playing;
+	var updatedFruit = _remyyounes$elm_snake$SnakeGame$updateFruit(fruit);
+	return {
+		ctor: '_Tuple2',
+		_0: _elm_lang$core$Native_Utils.update(
+			game,
+			{score: score, fruit: updatedFruit, state: gameState, previousDirection: direction, snake: updatedSnake}),
+		_1: cmds
+	};
+};
 var _remyyounes$elm_snake$SnakeGame$updateGame = F2(
 	function (msg, game) {
-		var _p6 = msg;
+		var _p7 = msg;
 		_v6_3:
 		do {
-			switch (_p6.ctor) {
+			switch (_p7.ctor) {
 				case 'ChangeDirection':
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							game,
 							{
-								direction: A2(_remyyounes$elm_snake$SnakeGame$restrictDirection, game.previousDirection, _p6._0)
+								direction: A2(_remyyounes$elm_snake$SnakeGame$restrictDirection, game.previousDirection, _p7._0)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				case 'NewFruit':
-					if (_p6._0.ctor === '_Tuple2') {
+					if (_p7._0.ctor === '_Tuple2') {
 						return {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
 								game,
 								{
-									fruit: A2(_remyyounes$elm_snake$SnakeGame$newFruit, _p6._0._0, _p6._0._1)
+									fruit: A2(_remyyounes$elm_snake$SnakeGame$newFruit, _p7._0._0, _p7._0._1)
 								}),
 							_1: _elm_lang$core$Platform_Cmd$none
 						};
@@ -11472,45 +11496,20 @@ var _remyyounes$elm_snake$SnakeGame$updateGame = F2(
 						break _v6_3;
 					}
 				case 'Tick':
-					var _p7 = game;
-					var score = _p7.score;
-					var snake = _p7.snake;
-					var lastFrameDelta = _p7.lastFrameDelta;
-					var direction = _p7.direction;
-					var fruit = _p7.fruit;
-					var ateFruit = A2(_remyyounes$elm_snake$SnakeGame$vecEql, snake.pos, fruit.pos);
-					var cmds = ateFruit ? A2(
-						_elm_lang$core$Random$generate,
-						_remyyounes$elm_snake$SnakeMsg$NewFruit,
-						A2(
-							_elm_lang$core$Random$pair,
-							A2(_elm_lang$core$Random$int, 0, _remyyounes$elm_snake$SnakeGame$tiles - 1),
-							A2(_elm_lang$core$Random$int, 0, _remyyounes$elm_snake$SnakeGame$tiles - 1))) : _elm_lang$core$Platform_Cmd$none;
-					var grownSnake = ateFruit ? _remyyounes$elm_snake$SnakeGame$growSnake(snake) : snake;
-					var newDelta = game.lastFrameDelta + _p6._0;
-					var g = function () {
-						if ((_elm_lang$core$Native_Utils.cmp(newDelta, _remyyounes$elm_snake$SnakeGame$timePerFrame) > 0) && _elm_lang$core$Native_Utils.eq(game.state, _remyyounes$elm_snake$SnakeGame$Playing)) {
-							var updatedFruit = _remyyounes$elm_snake$SnakeGame$updateFruit(fruit);
-							var updatedSnake = A2(_remyyounes$elm_snake$SnakeGame$updateSnake, direction, grownSnake);
-							var ateTail = _remyyounes$elm_snake$SnakeGame$detectCollisions(updatedSnake.body);
-							var gameState = (ateTail || _elm_lang$core$Native_Utils.eq(game.state, _remyyounes$elm_snake$SnakeGame$Over)) ? _remyyounes$elm_snake$SnakeGame$Over : _remyyounes$elm_snake$SnakeGame$Playing;
-							return _elm_lang$core$Native_Utils.update(
-								game,
-								{
-									lastFrameDelta: lastFrameDelta - _remyyounes$elm_snake$SnakeGame$timePerFrame,
-									score: score + _elm_lang$core$Basics$round(newDelta),
-									fruit: updatedFruit,
-									state: gameState,
-									previousDirection: direction,
-									snake: updatedSnake
-								});
+					var newDelta = game.lastFrameDelta + _p7._0;
+					var ticked = (_elm_lang$core$Native_Utils.cmp(newDelta, _remyyounes$elm_snake$SnakeGame$timePerFrame) > 0) && _elm_lang$core$Native_Utils.eq(game.state, _remyyounes$elm_snake$SnakeGame$Playing);
+					var newFrameDelta = function () {
+						var _p8 = ticked;
+						if (_p8 === true) {
+							return game.lastFrameDelta - _remyyounes$elm_snake$SnakeGame$timePerFrame;
 						} else {
-							return _elm_lang$core$Native_Utils.update(
-								game,
-								{lastFrameDelta: newDelta, snake: grownSnake});
+							return newDelta;
 						}
 					}();
-					return {ctor: '_Tuple2', _0: g, _1: cmds};
+					var g = _elm_lang$core$Native_Utils.update(
+						game,
+						{lastFrameDelta: newFrameDelta});
+					return ticked ? _remyyounes$elm_snake$SnakeGame$stepGame(g) : {ctor: '_Tuple2', _0: g, _1: _elm_lang$core$Platform_Cmd$none};
 				default:
 					break _v6_3;
 			}
