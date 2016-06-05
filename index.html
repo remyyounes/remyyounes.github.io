@@ -11182,7 +11182,7 @@ var _remyyounes$elm_snake$Tile$triangle = function (size) {
 			]));
 };
 var _remyyounes$elm_snake$Tile$tiles = 20;
-var _remyyounes$elm_snake$Tile$tile = 20;
+var _remyyounes$elm_snake$Tile$tile = 30;
 var _remyyounes$elm_snake$Tile$world = {width: _remyyounes$elm_snake$Tile$tiles * _remyyounes$elm_snake$Tile$tile, height: _remyyounes$elm_snake$Tile$tiles * _remyyounes$elm_snake$Tile$tile};
 var _remyyounes$elm_snake$Tile$placeTile = F2(
 	function (position, form) {
@@ -11696,7 +11696,7 @@ var _remyyounes$elm_snake$SnakeGame$initSnake = function () {
 	};
 }();
 var _remyyounes$elm_snake$SnakeGame$maxBonus = 100;
-var _remyyounes$elm_snake$SnakeGame$fps = 9;
+var _remyyounes$elm_snake$SnakeGame$fps = 10;
 var _remyyounes$elm_snake$SnakeGame$timePerFrame = 1000 / _remyyounes$elm_snake$SnakeGame$fps;
 var _remyyounes$elm_snake$SnakeGame$Game = F7(
 	function (a, b, c, d, e, f, g) {
@@ -11807,17 +11807,47 @@ var _remyyounes$elm_snake$SnakeGame$updateGame = F2(
 		} while(false);
 		return {ctor: '_Tuple2', _0: game, _1: _elm_lang$core$Platform_Cmd$none};
 	});
+var _remyyounes$elm_snake$Main$instructions = _elm_lang$html$Html$text('move: (A,W,S,D) or arrows   --   restart: SPACE');
+var _remyyounes$elm_snake$Main$instructionsStyle = _elm_lang$html$Html_Attributes$style(
+	_elm_lang$core$Native_List.fromArray(
+		[
+			{ctor: '_Tuple2', _0: 'color', _1: 'gray'},
+			{ctor: '_Tuple2', _0: 'font-family', _1: 'monospace'},
+			{ctor: '_Tuple2', _0: 'padding', _1: '5px'}
+		]));
+var _remyyounes$elm_snake$Main$containerStyle = _elm_lang$html$Html_Attributes$style(
+	_elm_lang$core$Native_List.fromArray(
+		[
+			{ctor: '_Tuple2', _0: 'backgroundColor', _1: 'rgb(238, 238, 236)'},
+			{ctor: '_Tuple2', _0: 'width', _1: '100%'},
+			{ctor: '_Tuple2', _0: 'height', _1: '100%'},
+			{ctor: '_Tuple2', _0: 'display', _1: 'flex'},
+			{ctor: '_Tuple2', _0: 'align-items', _1: 'center'},
+			{ctor: '_Tuple2', _0: 'justify-content', _1: 'center'}
+		]));
 var _remyyounes$elm_snake$Main$view = function (model) {
-	return _evancz$elm_graphics$Element$toHtml(
-		A2(
-			_evancz$elm_graphics$Element$color,
-			_elm_lang$core$Color$lightGray,
-			A4(
-				_evancz$elm_graphics$Element$container,
-				800,
-				800,
-				_evancz$elm_graphics$Element$middle,
-				_remyyounes$elm_snake$SnakeGame$viewGame(model.game))));
+	return A2(
+		_elm_lang$html$Html$div,
+		_elm_lang$core$Native_List.fromArray(
+			[_remyyounes$elm_snake$Main$containerStyle]),
+		_elm_lang$core$Native_List.fromArray(
+			[
+				A2(
+				_elm_lang$html$Html$div,
+				_elm_lang$core$Native_List.fromArray(
+					[]),
+				_elm_lang$core$Native_List.fromArray(
+					[
+						_evancz$elm_graphics$Element$toHtml(
+						_remyyounes$elm_snake$SnakeGame$viewGame(model.game)),
+						A2(
+						_elm_lang$html$Html$div,
+						_elm_lang$core$Native_List.fromArray(
+							[_remyyounes$elm_snake$Main$instructionsStyle]),
+						_elm_lang$core$Native_List.fromArray(
+							[_remyyounes$elm_snake$Main$instructions]))
+					]))
+			]));
 };
 var _remyyounes$elm_snake$Main_ops = _remyyounes$elm_snake$Main_ops || {};
 _remyyounes$elm_snake$Main_ops['=>'] = F2(
