@@ -11093,9 +11093,32 @@ var _remyyounes$elm_snake$Utils_Math$lerp = F3(
 	function (min, max, val) {
 		return min + ((max - min) * val);
 	});
-var _remyyounes$elm_snake$Tile$directionAngle = function (direction) {
-	var _p0 = direction;
+var _remyyounes$elm_snake$Tile$cornerOrientation = function (orientation) {
+	var _p0 = orientation;
 	switch (_p0) {
+		case 'UpRight':
+			return 270.0;
+		case 'LeftDown':
+			return 270.0;
+		case 'DownRight':
+			return 0.0;
+		case 'LeftUp':
+			return 0.0;
+		case 'DownLeft':
+			return 90.0;
+		case 'RightUp':
+			return 90.0;
+		case 'UpLeft':
+			return 180.0;
+		case 'RightDown':
+			return 180.0;
+		default:
+			return 0.0;
+	}
+};
+var _remyyounes$elm_snake$Tile$getOrientation = function (orientation) {
+	var _p1 = orientation;
+	switch (_p1) {
 		case 'UpUp':
 			return 0.0;
 		case 'UpRight':
@@ -11124,6 +11147,31 @@ var _remyyounes$elm_snake$Tile$directionAngle = function (direction) {
 			return 0.0;
 	}
 };
+var _remyyounes$elm_snake$Tile$corner = F2(
+	function (color, size) {
+		return _evancz$elm_graphics$Collage$group(
+			_elm_lang$core$Native_List.fromArray(
+				[
+					A2(
+					_evancz$elm_graphics$Collage$filled,
+					color,
+					_evancz$elm_graphics$Collage$circle(size / 2)),
+					A2(
+					_evancz$elm_graphics$Collage$move,
+					{ctor: '_Tuple2', _0: 0, _1: size / 4},
+					A2(
+						_evancz$elm_graphics$Collage$filled,
+						color,
+						A2(_evancz$elm_graphics$Collage$rect, size, size / 2))),
+					A2(
+					_evancz$elm_graphics$Collage$move,
+					{ctor: '_Tuple2', _0: size / 4, _1: 0},
+					A2(
+						_evancz$elm_graphics$Collage$filled,
+						color,
+						A2(_evancz$elm_graphics$Collage$rect, size / 2, size)))
+				]));
+	});
 var _remyyounes$elm_snake$Tile$tiles = 20;
 var _remyyounes$elm_snake$Tile$tile = 20;
 var _remyyounes$elm_snake$Tile$world = {width: _remyyounes$elm_snake$Tile$tiles * _remyyounes$elm_snake$Tile$tile, height: _remyyounes$elm_snake$Tile$tiles * _remyyounes$elm_snake$Tile$tile};
@@ -11140,15 +11188,15 @@ var _remyyounes$elm_snake$Tile$placeTile = F2(
 					{ctor: '_Tuple2', _0: position.x * _remyyounes$elm_snake$Tile$tile, _1: position.y * _remyyounes$elm_snake$Tile$tile},
 					form)));
 	});
-var _remyyounes$elm_snake$Tile$view = F2(
-	function (color, position) {
+var _remyyounes$elm_snake$Tile$viewFruit = F3(
+	function (color, position, orientation) {
 		return A2(
 			_remyyounes$elm_snake$Tile$placeTile,
 			position,
 			A2(
 				_evancz$elm_graphics$Collage$filled,
 				color,
-				_evancz$elm_graphics$Collage$square(_remyyounes$elm_snake$Tile$tile)));
+				_evancz$elm_graphics$Collage$circle(_remyyounes$elm_snake$Tile$tile / 4)));
 	});
 var _remyyounes$elm_snake$Tile$viewTail = F3(
 	function (color, position, direction) {
@@ -11158,7 +11206,7 @@ var _remyyounes$elm_snake$Tile$viewTail = F3(
 			A2(
 				_evancz$elm_graphics$Collage$rotate,
 				_elm_lang$core$Basics$degrees(
-					_remyyounes$elm_snake$Tile$directionAngle(direction)),
+					_remyyounes$elm_snake$Tile$getOrientation(direction)),
 				A2(
 					_evancz$elm_graphics$Collage$filled,
 					color,
@@ -11178,7 +11226,7 @@ var _remyyounes$elm_snake$Tile$viewHead = F3(
 			A2(
 				_evancz$elm_graphics$Collage$rotate,
 				_elm_lang$core$Basics$degrees(
-					_remyyounes$elm_snake$Tile$directionAngle(direction)),
+					_remyyounes$elm_snake$Tile$getOrientation(direction)),
 				_evancz$elm_graphics$Collage$group(
 					_elm_lang$core$Native_List.fromArray(
 						[
@@ -11208,6 +11256,45 @@ var _remyyounes$elm_snake$Tile$viewHead = F3(
 								_elm_lang$core$Color$black,
 								_evancz$elm_graphics$Collage$circle(_remyyounes$elm_snake$Tile$tile / 10)))
 						]))));
+	});
+var _remyyounes$elm_snake$Tile$getShape = F2(
+	function (color, orientation) {
+		var shape = function () {
+			var _p2 = orientation;
+			switch (_p2) {
+				case 'UpRight':
+					return A2(_remyyounes$elm_snake$Tile$corner, color, _remyyounes$elm_snake$Tile$tile);
+				case 'UpLeft':
+					return A2(_remyyounes$elm_snake$Tile$corner, color, _remyyounes$elm_snake$Tile$tile);
+				case 'LeftUp':
+					return A2(_remyyounes$elm_snake$Tile$corner, color, _remyyounes$elm_snake$Tile$tile);
+				case 'LeftDown':
+					return A2(_remyyounes$elm_snake$Tile$corner, color, _remyyounes$elm_snake$Tile$tile);
+				case 'RightUp':
+					return A2(_remyyounes$elm_snake$Tile$corner, color, _remyyounes$elm_snake$Tile$tile);
+				case 'RightDown':
+					return A2(_remyyounes$elm_snake$Tile$corner, color, _remyyounes$elm_snake$Tile$tile);
+				case 'DownLeft':
+					return A2(_remyyounes$elm_snake$Tile$corner, color, _remyyounes$elm_snake$Tile$tile);
+				case 'DownRight':
+					return A2(_remyyounes$elm_snake$Tile$corner, color, _remyyounes$elm_snake$Tile$tile);
+				default:
+					return A2(
+						_evancz$elm_graphics$Collage$filled,
+						color,
+						_evancz$elm_graphics$Collage$square(_remyyounes$elm_snake$Tile$tile));
+			}
+		}();
+		var angle = _elm_lang$core$Basics$degrees(
+			_remyyounes$elm_snake$Tile$cornerOrientation(orientation));
+		return A2(_evancz$elm_graphics$Collage$rotate, angle, shape);
+	});
+var _remyyounes$elm_snake$Tile$view = F3(
+	function (color, position, orientation) {
+		return A2(
+			_remyyounes$elm_snake$Tile$placeTile,
+			position,
+			A2(_remyyounes$elm_snake$Tile$getShape, color, orientation));
 	});
 var _remyyounes$elm_snake$Position$vecEql = F2(
 	function (vecA, vecB) {
@@ -11293,10 +11380,11 @@ var _remyyounes$elm_snake$Utils_Color$fruitColor = F2(
 			A4(_remyyounes$elm_snake$Utils_Color$lerpFromPosition, 100, 200, bonus, maxBonus));
 	});
 var _remyyounes$elm_snake$Fruit$view = function (fruit) {
-	return A2(
-		_remyyounes$elm_snake$Tile$view,
+	return A3(
+		_remyyounes$elm_snake$Tile$viewFruit,
 		A2(_remyyounes$elm_snake$Utils_Color$fruitColor, fruit.bonus, fruit.maxBonus),
-		fruit.pos);
+		fruit.pos,
+		'');
 };
 var _remyyounes$elm_snake$Fruit$update = function (fruit) {
 	return _elm_lang$core$Native_Utils.update(
@@ -11386,7 +11474,7 @@ var _remyyounes$elm_snake$Snake$view = function (snake) {
 			F2(
 				function (idx, ring) {
 					var color = A2(_remyyounes$elm_snake$Utils_Color$ringColor, length - idx, length);
-					return _elm_lang$core$Native_Utils.eq(idx, 0) ? A3(_remyyounes$elm_snake$Tile$viewHead, _elm_lang$core$Color$green, ring.pos, ring.orientation) : (_elm_lang$core$Native_Utils.eq(idx, length - 1) ? A3(_remyyounes$elm_snake$Tile$viewTail, color, ring.pos, ring.orientation) : A2(_remyyounes$elm_snake$Tile$view, color, ring.pos));
+					return _elm_lang$core$Native_Utils.eq(idx, 0) ? A3(_remyyounes$elm_snake$Tile$viewHead, _elm_lang$core$Color$green, ring.pos, ring.orientation) : (_elm_lang$core$Native_Utils.eq(idx, length - 1) ? A3(_remyyounes$elm_snake$Tile$viewTail, color, ring.pos, ring.orientation) : A3(_remyyounes$elm_snake$Tile$view, color, ring.pos, ring.orientation));
 				}),
 			snake.body));
 };
